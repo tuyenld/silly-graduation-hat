@@ -97,3 +97,31 @@ sudo mosquitto -v -c /etc/mosquitto/mosquitto.conf
 # clear log file
 sudo truncate -s 0  /var/log/mosquitto/mosquitto.log
 ```
+
+# Python programming
+
+## Raspberry Pi configuration
+
+```bash
+sudo apt install python3-pip
+sudo apt-get install python3-venv
+python3 -m venv hat-env
+source hat-env/bin/activate
+
+pip install paho-mqtt
+```
+
+- `-q2` QOS 2: The message will be delivered exactly once.
+- `-c` --disable-clean-session: keep messages while I am offline.
+
+```bash
+# subscriber
+mosquitto_sub -c -q2 -u piZero -P pihat -v -h 104.248.243.162 -t 'hat'
+
+# publisher
+mosquitto_pub -u piZero -P pihat -h 104.248.243.162 -t 'hat' -m 'hello'
+
+```
+
+The MQTT client is single [threaded](https://stackoverflow.com/a/54572567), it will only receive and process one message at a time
+
