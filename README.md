@@ -35,11 +35,27 @@ sudo ./demo -D0 --led-rows=32 --led-cols=64 # better
 sudo ./demo -D0 --led-rows=32 --led-cols=64 --led-slowdown-gpio=0
 sudo ./demo -D 1 runtext.ppm --led-rows=32 --led-cols=64
 
+```bash
+./scrolling-text-example -s 1 -f ../fonts/7x14.bdf "Hello world"
+
+# Run in the middle of the matrix
+sudo ./scrolling-text-example -x 32 -s 1 -f ../fonts/7x14.bdf "Hello world"
+
+
+sudo ./scrolling-text-example -y 3 -s 1 -f ../fonts/7x14.bdf "Hello world"
+
+```
+
+## Interesting
+- https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/examples-api-use
+- https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/include/threaded-canvas-manipulator.h
+- https://github.com/search?q=repo%3Ahzeller%2Frpi-rgb-led-matrix+thread&type=issues&p=10
+
+
 ## Issues
 
 https://rpi-rgb-led-matrix.discourse.group
 
-https://github.com/search?q=repo%3Ahzeller%2Frpi-rgb-led-matrix+thread&type=issues&p=10
 
 ---
 [Multi thread safe](https://github.com/hzeller/rpi-rgb-led-matrix/issues/1494#issuecomment-1368440225)

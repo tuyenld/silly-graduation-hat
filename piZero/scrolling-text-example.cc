@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
                                * matrix_options.cols) + 5;
   int x_orig = x_default_start;
   int y_orig = 0;
+  int x_stop_point = 32; // end point for display
   int letter_spacing = 0;
   float speed = 7.0f;
   int loops = -1;
@@ -174,6 +175,15 @@ int main(int argc, char *argv[]) {
                                   color, nullptr,
                                   line.c_str(), letter_spacing);
 
+    // clear all the pixels before the end point
+    if (x < x_stop_point)
+    {
+      for (int i_y = 0; i_y < matrix_options.rows; ++i_y) {
+        for (int i_x = x_stop_point; i_x >= x; --i_x) {
+            offscreen_canvas->SetPixel(i_x, i_y, 0, 0, 0);
+          }
+      }
+    }
     if (speed > 0 && --x + length < 0) {
       x = x_orig;
       if (loops > 0) --loops;
