@@ -62,8 +62,11 @@ sudo ./image-example --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat
 make led-image-viewer
 sudo ./led-image-viewer --led-no-hardware-pulse --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat LinkedIn_32.jpg
 
+# image text
+make image-text
+sudo ./image-text -f "tuyendl" -s "Open to work"
 
-
+sudo ./image-text -f "tuyendl" -s "Open to work" -i LinkedIn_16.jpg
 
 ```
 

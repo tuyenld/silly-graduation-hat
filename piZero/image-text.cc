@@ -129,8 +129,9 @@ int main(int argc, char *argv[]) {
 
   const char *bdf_font_file = "../fonts/7x14.bdf";
   int x_stop_point = 32; // end point for display
-  std::string first_line = "tuyendl";
-  std::string second_line = "Open to work";
+  const char *image_filename = NULL;
+  const char* first_line = NULL;
+  const char* second_line = NULL;
   float speed = 1.0f;
   matrix_options.hardware_mapping = "adafruit-hat";  // or e.g. "adafruit-hat" or "adafruit-hat-pwm"
   matrix_options.chain_length = 1;
@@ -143,9 +144,18 @@ int main(int argc, char *argv[]) {
     return usage(argv[0]);
   }
 
-  if (argc != 2)
-    return usage(argv[0]);
-  const char *filename = argv[1];
+  int opt;
+  while ((opt = getopt(argc, argv, "i:f:s:")) != -1) {
+    switch (opt) {
+    case 'i': image_filename = strdup(optarg); break;
+    /* first line */
+    case 'f': first_line = strdup(optarg); break;
+    /* second line */
+    case 's': second_line = strdup(optarg); break;
+    default:
+      return usage(argv[0]);
+    }
+  }
 
   signal(SIGTERM, InterruptHandler);
   signal(SIGINT, InterruptHandler);
@@ -173,7 +183,7 @@ int main(int argc, char *argv[]) {
 //   if (all_extreme_colors)
 //     canvas->SetPWMBits(1);
 
-  ImageVector images = LoadImage(filename);
+  ImageVector images;
   // switch (images.size()) {
   // case 0:   // failed to load image.
   //   break;
@@ -186,10 +196,15 @@ int main(int argc, char *argv[]) {
   //   break;
   // }
 
-  if (images.size() != 1)
+  int image_width = 0;
+  if (image_filename == NULL)
   {
-    printf("Failed to load image. Exiting...\n");
-    return 1;
+    printf("Running without image.\n");
+  }
+  else
+  {
+    images = LoadImage(image_filename);
+    image_width = images[0].size().width();
   }
    // Create a new canvas to be used with led_matrix_swap_on_vsync
   FrameCanvas *offscreen_canvas = canvas->CreateFrameCanvas();
@@ -219,10 +234,13 @@ int main(int argc, char *argv[]) {
     offscreen_canvas->Fill(bg_color.r, bg_color.g, bg_color.b);
 
     // length = holds how many pixels our text takes up
-    length = rgb_matrix::DrawText(offscreen_canvas, font,
-                                  images[0].size().width(), 0 + font.baseline(),
-                                  color, nullptr,
-                                  first_line.c_str(), letter_spacing);
+    if (first_line != NULL)
+    {
+        length = rgb_matrix::DrawText(offscreen_canvas, font,
+                                    image_width, 0 + font.baseline(),
+                                    color, nullptr,
+                                    first_line, letter_spacing);
+    }
 
     /* clear all the pixels before the end point */
     // if (x < x_stop_point)
@@ -234,18 +252,23 @@ int main(int argc, char *argv[]) {
     //   }
     // }
 
-
-    length = rgb_matrix::DrawText(offscreen_canvas, font,
-                                  x, y + 16 + font.baseline(),
-                                  color, nullptr,
-                                  second_line.c_str(), letter_spacing);
+    if (second_line != NULL)
+    {
+        length = rgb_matrix::DrawText(offscreen_canvas, font,
+                                    x, y + 16 + font.baseline(),
+                                    color, nullptr,
+                                    second_line, letter_spacing);
+    }
 
     if (speed > 0 && --x + length < 0) {
       x = x_orig;
       if (loops > 0) --loops;
     }
     // Swap the offscreen_canvas with canvas on vsync, avoids flickering
-    CopyImageToCanvas(images[0], offscreen_canvas);
+    if (image_width > 0)
+    {
+      CopyImageToCanvas(images[0], offscreen_canvas);
+    }
     
     offscreen_canvas = canvas->SwapOnVSync(offscreen_canvas);
     usleep(delay_speed_usec);
