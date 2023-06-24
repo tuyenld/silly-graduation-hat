@@ -35,14 +35,35 @@ sudo ./demo -D0 --led-rows=32 --led-cols=64 # better
 sudo ./demo -D0 --led-rows=32 --led-cols=64 --led-slowdown-gpio=0
 sudo ./demo -D 1 runtext.ppm --led-rows=32 --led-cols=64
 
+
+## Install
+
 ```bash
+
+# examples-api-use/image-example.cc
+
+# https://github.com/autorope/donkeydocs/issues/27#issuecomment-1001816493
+sudo apt-get update --allow-releaseinfo-change
+sudo apt-get install libgraphicsmagick++-dev libwebp-dev -y
+```
+
+### Compile
+
+```bash
+# scrolling-text-example.cc
+make
 ./scrolling-text-example -s 1 -f ../fonts/7x14.bdf "Hello world"
 
-# Run in the middle of the matrix
-sudo ./scrolling-text-example -x 32 -s 1 -f ../fonts/7x14.bdf "Hello world"
+# image-example.cc
+make image-example
+sudo ./image-example --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat LinkedIn_32.jpg
+
+# led-image-viewer.cc
+make led-image-viewer
+sudo ./led-image-viewer --led-no-hardware-pulse --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat LinkedIn_32.jpg
 
 
-sudo ./scrolling-text-example -y 3 -s 1 -f ../fonts/7x14.bdf "Hello world"
+
 
 ```
 

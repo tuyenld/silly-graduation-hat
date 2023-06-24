@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
     // clear all the pixels before the end point
     if (x < x_stop_point)
     {
-      for (int i_y = 0; i_y < matrix_options.rows; ++i_y) {
+      for (int i_y = y_orig; i_y < y_orig + matrix_options.rows; ++i_y) {
         for (int i_x = x_stop_point; i_x >= x; --i_x) {
             offscreen_canvas->SetPixel(i_x, i_y, 0, 0, 0);
           }
@@ -188,6 +188,11 @@ int main(int argc, char *argv[]) {
       x = x_orig;
       if (loops > 0) --loops;
     }
+
+    rgb_matrix::DrawText(offscreen_canvas, font,
+                                  x, y + 16 + font.baseline(),
+                                  color, nullptr,
+                                  line.c_str(), letter_spacing);
 
     // Swap the offscreen_canvas with canvas on vsync, avoids flickering
     offscreen_canvas = canvas->SwapOnVSync(offscreen_canvas);
