@@ -21,7 +21,7 @@ mqtt_control::mqtt_control(const char *id, const char *user_name, const char *pa
 	username_pw_set(user_name, pass_word);
 	/* Connect immediately. This could also be done by calling
 	 * mqtt_control->connect(). */
-	connect(host, port, keepalive);
+	connect_async(host, port, keepalive);
 };
 
 mqtt_control::~mqtt_control()
@@ -30,28 +30,27 @@ mqtt_control::~mqtt_control()
 
 void mqtt_control::on_connect(int rc)
 {
-	printf("Connected with code %d.\n", rc);
+	// printf("Connected with code %d.\n", rc);
 	if(rc == 0){
 		/* Only attempt to subscribe on a successful connect. */
 		int reason_code = 0;
 		for (std::string topic : topics)
 		{
-			printf("Subscribing topic: %s \n", topic.c_str());
 			reason_code = subscribe(NULL, topic.c_str(), 2);
 			if(reason_code != MOSQ_ERR_SUCCESS){
-				fprintf(stderr, "Error subscribing: %s\n", mosqpp::strerror(reason_code));
+				fprintf(stderr, "Error during subscribing: %s\n", mosqpp::strerror(reason_code));
 				/* We might as well disconnect if we were unable to subscribe */
 				disconnect();
 			}
 			else
 			{
-				printf("Subscribed success! \n");
+				printf("Subscribed [%s] successfully! \n", topic.c_str());
 			}
 		}
 	}
 	else
 	{
-		fprintf(stderr, "Error subscribing: %s\n", mosqpp::connack_string(rc));
+		fprintf(stderr, "Error during connecting: %s\n", mosqpp::connack_string(rc));
 	}
 }
 
@@ -59,7 +58,6 @@ void mqtt_control::on_message(const struct mosquitto_message *message)
 {
 	double temp_celsius, temp_fahrenheit;
 	char buf[51];
-	printf("Received something \n");
 
 	if(!strcmp(message->topic, "hat")){
 		memset(buf, 0, 51*sizeof(char));

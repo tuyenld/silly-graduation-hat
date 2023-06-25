@@ -4,6 +4,7 @@
 #include <mosquittopp.h>
 #include <string>
 #include <vector>
+#include <unistd.h>
 
 class mqtt_control : public mosqpp::mosquittopp
 {
