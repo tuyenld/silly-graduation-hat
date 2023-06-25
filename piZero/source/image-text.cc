@@ -32,6 +32,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "mqtt_control.h"
+
 using rgb_matrix::Canvas;
 using rgb_matrix::RGBMatrix;
 using rgb_matrix::FrameCanvas;
@@ -127,7 +129,7 @@ int main(int argc, char *argv[]) {
   RGBMatrix::Options matrix_options;
   rgb_matrix::RuntimeOptions runtime_opt;
 
-  const char *bdf_font_file = "../fonts/7x14.bdf";
+  const char *bdf_font_file = "7x14.bdf";
   int x_stop_point = 32; // end point for display
   const char *image_filename = NULL;
   const char* first_line = NULL;
@@ -228,7 +230,14 @@ int main(int argc, char *argv[]) {
   int y = y_orig;
   int length = 0;
 
-  
+  /*
+  * Control via MQTT
+  **/
+  class mqtt_control *led_control;
+	mosqpp::lib_init();
+
+	led_control = new mqtt_control("led_control", "piZero", "pihat", "104.248.243.162", 1883, "hat:ctrl");
+	led_control->loop_start();
 
   while (!interrupt_received && loops != 0) {
     offscreen_canvas->Fill(bg_color.r, bg_color.g, bg_color.b);
@@ -276,6 +285,7 @@ int main(int argc, char *argv[]) {
 
   canvas->Clear();
   delete canvas;
+  mosqpp::lib_cleanup();
 
   return 0;
 }

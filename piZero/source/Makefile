@@ -1,7 +1,7 @@
 CFLAGS=-Wall -O3 -g -Wextra -Wno-unused-parameter
 CXXFLAGS=$(CFLAGS)
-OBJECTS=scrolling-text-example.o
-BINARIES=scrolling-text-example
+OBJECTS=image-text.o
+BINARIES=image-text
 
 # Where our library resides. You mostly only need to change the
 # RGB_LIB_DISTRIBUTION, this is where the library is checked out.
@@ -10,7 +10,7 @@ RGB_INCDIR=$(RGB_LIB_DISTRIBUTION)/include
 RGB_LIBDIR=$(RGB_LIB_DISTRIBUTION)/lib
 RGB_LIBRARY_NAME=rgbmatrix
 RGB_LIBRARY=$(RGB_LIBDIR)/lib$(RGB_LIBRARY_NAME).a
-LDFLAGS+=-L$(RGB_LIBDIR) -l$(RGB_LIBRARY_NAME) -lrt -lm -lpthread
+LDFLAGS+=-L$(RGB_LIBDIR) -l$(RGB_LIBRARY_NAME) -lrt -lm -lpthread -lmosquittopp
 
 # To compile image-example
 MAGICK_CXXFLAGS?=$(shell GraphicsMagick++-config --cppflags --cxxflags)
@@ -21,24 +21,19 @@ all : $(BINARIES)
 $(RGB_LIBRARY): FORCE
 	$(MAKE) -C $(RGB_LIBDIR)
 
-scrolling-text-example : scrolling-text-example.o
 
 # All the binaries that have the same name as the object file.q
 % : %.o $(RGB_LIBRARY)
 	$(CXX) $< -o $@ $(LDFLAGS)
 
-
-image-example.o : image-example.cc
-	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
-
-image-example: image-example.o $(RGB_LIBRARY)
-	$(CXX) $< -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
+image-text : image-text.o mqtt_control.o $(RGB_LIBRARY)
+	$(CXX) $^ -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
 
 image-text.o : image-text.cc
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
 
-image-text: image-text.o $(RGB_LIBRARY)
-	$(CXX) $< -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
+mqtt_control.o : mqtt_control.cpp
+	${CXX} -c $^ -o $@ ${CFLAGS}
 
 %.o : %.cc
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) -c -o $@ $<

@@ -76,6 +76,15 @@ sudo ./image-text -f "tuyendl" -s "Open to work" -i LinkedIn_16.jpg
 - https://github.com/search?q=repo%3Ahzeller%2Frpi-rgb-led-matrix+thread&type=issues&p=10
 
 
+## Thread
+
+Monitor thread and its children
+
+```bash
+export PID=1829
+htop -p `pstree -p $PID | perl -ne 'push @t, /\((\d+)\)/g; END { print join ",", @t }'`
+```
+
 ## Issues
 
 https://rpi-rgb-led-matrix.discourse.group
