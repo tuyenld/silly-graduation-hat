@@ -1,5 +1,5 @@
-#ifndef TEMPERATURE_CONVERSION_H
-#define TEMPERATURE_CONVERSION_H
+#ifndef MQTT_CONTROL_H
+#define MQTT_CONTROL_H
 
 #include <mosquittopp.h>
 #include <string>

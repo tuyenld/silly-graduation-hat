@@ -1,7 +1,7 @@
 CFLAGS=-Wall -O3 -g -Wextra -Wno-unused-parameter
 CXXFLAGS=$(CFLAGS)
-OBJECTS=image-text.o
-BINARIES=image-text
+OBJECTS=main.o
+BINARIES=main
 
 # Where our library resides. You mostly only need to change the
 # RGB_LIB_DISTRIBUTION, this is where the library is checked out.
@@ -26,10 +26,13 @@ $(RGB_LIBRARY): FORCE
 % : %.o $(RGB_LIBRARY)
 	$(CXX) $< -o $@ $(LDFLAGS)
 
-image-text : image-text.o mqtt_control.o $(RGB_LIBRARY)
+main : main.o mqtt_control.o led_config.o $(RGB_LIBRARY)
 	$(CXX) $^ -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
 
-image-text.o : image-text.cc
+main.o : main.cpp
+	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
+
+led_config.o : led_config.cpp
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
 
 mqtt_control.o : mqtt_control.cpp
