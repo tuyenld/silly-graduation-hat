@@ -98,6 +98,33 @@ sudo mosquitto -v -c /etc/mosquitto/mosquitto.conf
 sudo truncate -s 0  /var/log/mosquitto/mosquitto.log
 ```
 
+# cpp
+
+## Install on Raspberry Pi
+```bash
+
+# https://mosquitto.org/blog/2013/01/mosquitto-debian-repository/
+sudo apt-get install mosquitto
+
+# https://jpinjpblog.wordpress.com/2017/12/18/installing-mqtt-for-c-on-raspberry-pi/
+sudo apt-get install libmosquitto-dev libmosquittopp-dev libssl-dev
+
+sudo vi /etc/mosquitto/conf.d/websocket.conf
+listener 1883
+listener 1884
+protocol websockets
+
+sudo service mosquitto restart
+
+# As long as you make your code with the following flags.
+# -l mosquittopp
+```
+
+## Libs
+
+- [mosquittopp.h](https://github.com/eclipse/mosquitto/blob/master/lib/cpp/mosquittopp.h)
+- [mosquitto.h](https://mosquitto.org/api/files/mosquitto-h.html)
+
 # Python programming
 
 ## Raspberry Pi configuration
@@ -120,6 +147,10 @@ mosquitto_sub -c -q2 -u piZero -P pihat -v -h 104.248.243.162 -t 'hat'
 
 # publisher
 mosquitto_pub -u piZero -P pihat -h 104.248.243.162 -t 'hat' -m 'hello'
+
+
+
+mosquitto_pub -h test.mosquitto.org -t "example/temperature" -m 'hello'
 
 ```
 
