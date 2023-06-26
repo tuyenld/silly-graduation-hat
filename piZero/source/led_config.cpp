@@ -110,6 +110,7 @@ led_config::led_config(int *argc, char ***argv)
     matrix_options.cols = 64;
     matrix_options.show_refresh_rate = true;
     mutex = PTHREAD_MUTEX_INITIALIZER;
+    speed = 1.5f;
 
     ParseOptionsFromFlags(argc, argv);
     x_default_start = (matrix_options.chain_length
@@ -183,7 +184,6 @@ void led_config::cal_delay_and_coordinate(void)
 
 void led_config::loop_display()
 {
-  disp_two_lines disp_in;
   while (!interrupt_received)
   {
     while (pthread_mutex_trylock(&mutex) ==EBUSY)
@@ -197,8 +197,9 @@ void led_config::loop_display()
     {
       /* don't put disp_def directly to disp_nxt.push function
       because after popping, the disp_def will be earsed */
-      disp_in = disp_def;
-      disp_nxt.push(disp_in);
+      disp_new = new disp_two_lines();
+      *disp_new = disp_def;
+      disp_nxt.push(*disp_new);
     }
 
     disp_cur = disp_nxt.front();
@@ -252,8 +253,9 @@ void led_config::loop_display_one(disp_two_lines& current_disply)
 
 led_config::~led_config()
 {
-    delete canvas;
-    delete disp_new;
+  delete canvas;
+  /* disp_new is passed as lvalue, don't need to delete */
+  //delete disp_new;
 }
 
 
@@ -282,6 +284,12 @@ disp_two_lines::disp_two_lines(const char* str)
   /* DONT DELTE buf */
 }
 
+disp_two_lines::~disp_two_lines()
+{
+    delete image_filename; image_filename = NULL;
+    delete first_line; first_line = NULL;
+    delete second_line; second_line = NULL;
+}
 disp_two_lines::disp_two_lines(void)
 {
   first_line = NULL;

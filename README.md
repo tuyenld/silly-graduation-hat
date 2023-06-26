@@ -86,6 +86,14 @@ export PID=1829
 htop -p `pstree -p $PID | perl -ne 'push @t, /\((\d+)\)/g; END { print join ",", @t }'`
 ```
 
+## Debug
+
+```bash
+
+valgrind --leak-check=yes ./main
+valgrind --leak-check=full ./main
+```
+
 ## Issues
 
 https://rpi-rgb-led-matrix.discourse.group

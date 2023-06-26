@@ -6,7 +6,7 @@
 
 mqtt_control::mqtt_control(const char *id, const char *user_name, const char *pass_word, 
 						const char *host, int port, std::string topics_sub) 
-	: mosquittopp(id)
+	: mosquittopp(id, false) /* clean_session=false to create durable connection*/
 {
 	int keepalive = 60;
 	size_t pos = 0;

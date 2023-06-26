@@ -54,12 +54,7 @@ class disp_two_lines
         disp_two_lines(const char* str);
         disp_two_lines(void);
         disp_two_lines& operator=(const disp_two_lines& new_disp);
-        ~disp_two_lines()
-        {
-            delete image_filename;
-            delete first_line;
-            delete second_line;
-        }
+        ~disp_two_lines();
 
         const char* first_line;
         const char* second_line;
@@ -77,7 +72,7 @@ class led_config
         const char *bdf_font_file = "7x14.bdf";
         void set_disp(disp_two_lines& new_disp);
 
-        float speed = 1.0f;
+        float speed;
         // or e.g. "adafruit-hat" or "adafruit-hat-pwm"
         rgb_matrix::Color color {rgb_matrix::Color(255, 255, 0)};
         rgb_matrix::Color bg_color {rgb_matrix::Color(0, 0, 0)};
