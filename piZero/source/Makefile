@@ -36,7 +36,7 @@ led_config.o : led_config.cpp
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
 
 mqtt_control.o : mqtt_control.cpp
-	${CXX} -c $^ -o $@ ${CFLAGS}
+	${CXX}  -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c $^ -o $@ ${CFLAGS}
 
 %.o : %.cc
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) -c -o $@ $<

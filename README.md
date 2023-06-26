@@ -68,7 +68,7 @@ sudo ./image-text -f "tuyendl" -s "Open to work"
 
 sudo ./image-text -f "tuyendl" -s "Open to work" -i LinkedIn_16.jpg
 
-sudo ./main -f "tuyendl" -s "Open to work" -i ../LinkedIn_16.jpg
+sudo ./main -f "tuyendl" -s "Open to work" -i LinkedIn_16.jpg
 ```
 
 ## Interesting

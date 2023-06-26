@@ -71,6 +71,15 @@ wget http://localhost:8083
 Remember that MQTT uses ports 1883 and 8883 (for SSL).
 ```
 
+## Clear all retained message
+
+```bash
+sudo systemctl stop mosquitto.service
+sudo rm /var/lib/mosquitto/mosquitto.db
+sudo systemctl start mosquitto.service
+sudo systemctl status mosquitto.service
+```
+
 ## Test
 
 ```bash

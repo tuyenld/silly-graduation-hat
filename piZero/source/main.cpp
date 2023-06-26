@@ -26,7 +26,6 @@ int main(int argc, char *argv[]) {
   class led_config *pi_led_config;
   pi_led_config = new led_config(&argc, &argv);
   pi_led_config->load_font();
-  pi_led_config->load_image();
   pi_led_config->cal_delay_and_coordinate();
 
   signal(SIGTERM, led_config::InterruptHandler);
@@ -39,6 +38,7 @@ int main(int argc, char *argv[]) {
   class mqtt_control *led_control;
 	mosqpp::lib_init();
 	led_control = new mqtt_control("led_control", "piZero", "pihat", "104.248.243.162", 1883, "hat:ctrl");
+  led_control->led_config_cur = pi_led_config;
 
 	led_control->loop_start();
   pi_led_config->loop_display();

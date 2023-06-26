@@ -63,6 +63,8 @@ void mqtt_control::on_message(const struct mosquitto_message *message)
 		/* Copy N-1 bytes to ensure always 0 terminated. */
 		memcpy(buf, message->payload, 50*sizeof(char));
 		printf("[hat] Received %s \n", buf);
+		disp_two_lines new_disp((const char*)message->payload);
+		led_config_cur->set_disp(new_disp);
 	}
 
 	if(!strcmp(message->topic, "ctrl")){

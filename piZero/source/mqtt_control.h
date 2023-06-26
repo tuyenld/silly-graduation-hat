@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <unistd.h>
+#include "led_config.h"
 
 class mqtt_control : public mosqpp::mosquittopp
 {
@@ -13,6 +14,8 @@ class mqtt_control : public mosqpp::mosquittopp
 						const char *host, int port, std::string topics_sub);
 		
 		std::vector<std::string> topics;
+		led_config *led_config_cur;
+
 		~mqtt_control();
 
 		void on_connect(int rc);

@@ -1,4 +1,5 @@
 #include "led_config.h"
+#include <cstring>
 
 // Given the filename, load the image 
 // // If this is an animated image, the resutlting vector will contain multiple.
@@ -85,18 +86,19 @@ bool led_config::ParseOptionsFromFlags(int *argc, char ***argv)
   int opt;
   while ((opt = getopt(*argc, *argv, "i:f:s:")) != -1) {
     switch (opt) {
-    case 'i': image_filename = strdup(optarg); break;
+    /* image path */
+    case 'i': disp_cur.image_filename = strdup(optarg); break;
     /* first line */
-    case 'f': first_line = strdup(optarg); break;
+    case 'f':  disp_cur.first_line = strdup(optarg); break;
     /* second line */
-    case 's': second_line = strdup(optarg); break;
+    case 's':  disp_cur.second_line = strdup(optarg); break;
     default:
       return usage((*argv)[0]);
     }
   }
+  disp_def = disp_cur;
   return true;
 }
-
 
 volatile bool led_config::interrupt_received = false;
 
@@ -107,6 +109,7 @@ led_config::led_config(int *argc, char ***argv)
     matrix_options.rows = 32;
     matrix_options.cols = 64;
     matrix_options.show_refresh_rate = true;
+    mutex = PTHREAD_MUTEX_INITIALIZER;
 
     ParseOptionsFromFlags(argc, argv);
     x_default_start = (matrix_options.chain_length
@@ -116,6 +119,22 @@ led_config::led_config(int *argc, char ***argv)
         printf("Initiation canvas failed\n");
     // Create a new canvas to be used with led_matrix_swap_on_vsync
     offscreen_canvas = canvas->CreateFrameCanvas();
+
+}
+
+
+void led_config::set_disp(disp_two_lines& new_disp)
+{
+  // Non-bloocking wait for a mutex
+  while (pthread_mutex_trylock(&mutex) ==EBUSY)
+  {
+    // do something else for a while
+  }
+  disp_new = new disp_two_lines();
+  *disp_new = new_disp;
+  disp_nxt.push(*disp_new);
+
+  pthread_mutex_unlock(&mutex);
 
 }
 
@@ -136,14 +155,15 @@ bool led_config::load_font()
 
 void led_config::load_image()
 {
-    if (image_filename == NULL)
+    if (disp_cur.image_filename == NULL)
     {
-        printf("Running without image.\n");
+      printf("Running without image.\n");
     }
     else
     {
-        images = LoadImage(image_filename);
-        image_width = images[0].size().width();
+      printf("Loaded image: %s \n", disp_cur.image_filename);
+      images = LoadImage(disp_cur.image_filename);
+      image_width = images[0].size().width();
     }
 }
 
@@ -163,52 +183,108 @@ void led_config::cal_delay_and_coordinate(void)
 
 void led_config::loop_display()
 {
-    while (!interrupt_received && loops != 0) {
-        offscreen_canvas->Fill(bg_color.r, bg_color.g, bg_color.b);
-
-        // length = holds how many pixels our text takes up
-        if (first_line != NULL)
-        {
-            length = rgb_matrix::DrawText(offscreen_canvas, font,
-                                        image_width, 0 + font.baseline(),
-                                        color, nullptr,
-                                        first_line, letter_spacing);
-        }
-
-        /* clear all the pixels before the end point */
-        // if (x < x_stop_point)
-        // {
-        //   for (int i_y = y_orig; i_y < y_orig + matrix_options.rows; ++i_y) {
-        //     for (int i_x = x_stop_point; i_x >= x; --i_x) {
-        //         offscreen_canvas->SetPixel(i_x, i_y, 0, 0, 0);
-        //       }
-        //   }
-        // }
-
-        if (second_line != NULL)
-        {
-            length = rgb_matrix::DrawText(offscreen_canvas, font,
-                                        x, y + 16 + font.baseline(),
-                                        color, nullptr,
-                                        second_line, letter_spacing);
-        }
-
-        if (speed > 0 && --x + length < 0) {
-            x = x_orig;
-            if (loops > 0) --loops;
-        }
-        // Swap the offscreen_canvas with canvas on vsync, avoids flickering
-        if (image_width > 0)
-        {
-            CopyImageToCanvas(images[0], offscreen_canvas);
-        }
-
-        offscreen_canvas = canvas->SwapOnVSync(offscreen_canvas);
-        usleep(delay_speed_usec);
+  disp_two_lines disp_in;
+  while (!interrupt_received)
+  {
+    while (pthread_mutex_trylock(&mutex) ==EBUSY)
+    {
+      // do something else for a while
+      loop_display_one(disp_cur);
     }
+
+    // always keep the default element
+    if (disp_nxt.empty())
+    {
+      /* don't put disp_def directly to disp_nxt.push function
+      because after popping, the disp_def will be earsed */
+      disp_in = disp_def;
+      disp_nxt.push(disp_in);
+    }
+
+    disp_cur = disp_nxt.front();
+    disp_nxt.pop();
+
+    pthread_mutex_unlock(&mutex);
+
+    load_image();
+    loop_display_one(disp_cur);
+  }
+}
+void led_config::loop_display_one(disp_two_lines& current_disply)
+{
+  const char* first_line = current_disply.first_line;
+  const char* second_line = current_disply.second_line;
+  x = x_orig;
+  while (!interrupt_received) {
+      offscreen_canvas->Fill(bg_color.r, bg_color.g, bg_color.b);
+
+      // length = holds how many pixels our text takes up
+      if (first_line != NULL)
+      {
+          length = rgb_matrix::DrawText(offscreen_canvas, font,
+                                      image_width, 0 + font.baseline(),
+                                      color, nullptr,
+                                      first_line, letter_spacing);
+      }
+
+      if (second_line != NULL)
+      {
+          length = rgb_matrix::DrawText(offscreen_canvas, font,
+                                      x, y + 16 + font.baseline(),
+                                      color, nullptr,
+                                      second_line, letter_spacing);
+      }
+      // Swap the offscreen_canvas with canvas on vsync, avoids flickering
+      if (image_width > 0)
+      {
+          CopyImageToCanvas(images[0], offscreen_canvas);
+      }
+
+      offscreen_canvas = canvas->SwapOnVSync(offscreen_canvas);
+
+      /* time to update a new text */
+      if (--x + length < 0) {
+        break;
+      }
+      usleep(delay_speed_usec);
+  }
 }
 
 led_config::~led_config()
 {
     delete canvas;
+    delete disp_new;
+}
+
+
+disp_two_lines& disp_two_lines::operator=(const disp_two_lines& new_disp)
+{
+    // Guard self assignment
+    if (this == &new_disp)
+        return *this;
+    this->image_filename = strdup(new_disp.image_filename);
+    this->first_line = strdup(new_disp.first_line);
+    this->second_line = strdup(new_disp.second_line);
+    
+    return *this;
+}
+
+disp_two_lines::disp_two_lines(const char* str)
+{
+  char* buf = strdup(str);
+  const char* delimiters = ":";
+  char *token = std::strtok(buf, delimiters);
+  first_line = strdup(token);
+  token = std::strtok(NULL, delimiters);
+  second_line = strdup(token);
+  token = std::strtok(NULL, delimiters);
+  image_filename = strdup(token);
+  /* DONT DELTE buf */
+}
+
+disp_two_lines::disp_two_lines(void)
+{
+  first_line = NULL;
+  second_line = NULL;
+  image_filename = NULL;
 }

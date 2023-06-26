@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <queue>
 
 #include <exception>
 #include <Magick++.h>
@@ -15,6 +16,7 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 // volatile bool interrupt_received;
 // static void InterruptHandler(int signo);
@@ -46,6 +48,24 @@ void ShowAnimatedImage(const ImageVector &images, RGBMatrix *canvas);
 
 bool usage(const char *progname);
 
+class disp_two_lines
+{
+    public:
+        disp_two_lines(const char* str);
+        disp_two_lines(void);
+        disp_two_lines& operator=(const disp_two_lines& new_disp);
+        ~disp_two_lines()
+        {
+            delete image_filename;
+            delete first_line;
+            delete second_line;
+        }
+
+        const char* first_line;
+        const char* second_line;
+        const char *image_filename;
+
+};
 
 class led_config
 {
@@ -55,10 +75,8 @@ class led_config
         rgb_matrix::RuntimeOptions runtime_opt;
 
         const char *bdf_font_file = "7x14.bdf";
-        int x_stop_point = 32; // end point for display
-        const char *image_filename = NULL;
-        const char* first_line = NULL;
-        const char* second_line = NULL;
+        void set_disp(disp_two_lines& new_disp);
+
         float speed = 1.0f;
         // or e.g. "adafruit-hat" or "adafruit-hat-pwm"
         rgb_matrix::Color color {rgb_matrix::Color(255, 255, 0)};
@@ -97,7 +115,14 @@ class led_config
         void load_image(void);
         void cal_delay_and_coordinate(void);
 
-        void loop_display(void);
+        void loop_display_one(disp_two_lines& current_disply);
+        void loop_display();
+    
+        class disp_two_lines disp_cur; // current display
+        class disp_two_lines disp_def; // default display
+        class disp_two_lines* disp_new; 
+        std::queue <class disp_two_lines> disp_nxt; // next display
+        pthread_mutex_t mutex;
 };
 
 #endif
