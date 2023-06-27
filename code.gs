@@ -1,22 +1,33 @@
 var IP = "104.248.243.162"
 var POST_URL = "http://" + IP + ":9000";
 
-function myFunction() {
+function myFunction(e) {
   // Get the form to which this script is bound.
   var form = FormApp.getActiveForm();
-
-
 
   // https://medium.com/@eyalgershon/sending-a-webhook-for-each-google-forms-submission-a0e73f72b397
   var allResponses = form.getResponses();
   var latestResponse = allResponses[allResponses.length - 1];
   var response = latestResponse.getItemResponses();
   var payload = {};
+  /*
   for (var i = 0; i < response.length; i++) {
       var question = response[i].getItem().getTitle();
       var answer = response[i].getResponse();
       payload[question] = answer;
   }
+  */
+  // to simplify the json, hardcode the item
+  // DON"T CHANGE THE ORDER OF THE QUESTIONS
+  var image_path_ascii = response[0].getResponse();
+  // ASCII is in range of 0 to 127, so:
+  // image_path_ascii = response[0].getResponse().replace(/[^\x00-\x7F]/g, "");
+  // image_path_ascii = image_path_ascii.replace(" ", ""); // remove space
+  // image_path_ascii = image_path_ascii.toLowerCase() + '.jpg';
+
+  payload["image_path"] = image_path_ascii;
+  payload["first_line"] = response[1].getResponse();
+  payload["second_line"] = response[2].getResponse();
 
   var options = {
       "method": "post",

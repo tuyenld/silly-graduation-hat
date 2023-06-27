@@ -1,6 +1,18 @@
 #include "led_config.h"
 #include <cstring>
 
+#include "yyjson.h"
+
+
+bool invalidChar (char c) 
+{  
+    return (c > 128) || c == ' ';
+} 
+void stripUnicode(std::string & str) 
+{ 
+  str.erase(remove_if(str.begin(),str.end(), invalidChar), str.end());  
+}
+
 // Given the filename, load the image 
 // // If this is an animated image, the resutlting vector will contain multiple.
 static ImageVector LoadImage(const char *filename) {
@@ -264,24 +276,38 @@ disp_two_lines& disp_two_lines::operator=(const disp_two_lines& new_disp)
     // Guard self assignment
     if (this == &new_disp)
         return *this;
-    this->image_filename = strdup(new_disp.image_filename);
-    this->first_line = strdup(new_disp.first_line);
-    this->second_line = strdup(new_disp.second_line);
+    this->image_filename = (new_disp.image_filename == NULL) ? NULL: strdup(new_disp.image_filename);
+    this->first_line = (new_disp.first_line == NULL) ? NULL: strdup(new_disp.first_line);
+    this->second_line = (new_disp.second_line == NULL) ? NULL : strdup(new_disp.second_line);
     
     return *this;
 }
 
-disp_two_lines::disp_two_lines(const char* str)
+bool disp_two_lines::convert_to_json(const char* str)
 {
-  char* buf = strdup(str);
-  const char* delimiters = ":";
-  char *token = std::strtok(buf, delimiters);
-  first_line = strdup(token);
-  token = std::strtok(NULL, delimiters);
-  second_line = strdup(token);
-  token = std::strtok(NULL, delimiters);
-  image_filename = strdup(token);
-  /* DONT DELTE buf */
+  // Read JSON and get root
+  yyjson_doc *doc = yyjson_read(str, strlen(str), 0);
+  yyjson_val *root = yyjson_doc_get_root(doc);
+
+  // Get root["image_path"]
+  yyjson_val *iPath = yyjson_obj_get(root, "image_path");
+  yyjson_val *fLine = yyjson_obj_get(root, "first_line");
+  yyjson_val *sLine = yyjson_obj_get(root, "second_line");
+  // printf("name: %s\n", yyjson_get_str(iPath));
+
+  std::string non_ascii(yyjson_get_str(iPath));
+  stripUnicode(non_ascii);
+  non_ascii = non_ascii + ".jpg";
+  const char* str_non_ascii = non_ascii.c_str();
+  image_filename = (strlen(str_non_ascii)>4) ? strdup(str_non_ascii) : NULL;
+
+  first_line = (strlen(yyjson_get_str(fLine))) ? strdup(yyjson_get_str(fLine)) : NULL;
+  second_line = (strlen(yyjson_get_str(sLine))) ? strdup(yyjson_get_str(sLine)) : NULL;
+
+  // Free the doc
+  yyjson_doc_free(doc);
+  return !isEmply();
+
 }
 
 disp_two_lines::~disp_two_lines()
@@ -295,4 +321,8 @@ disp_two_lines::disp_two_lines(void)
   first_line = NULL;
   second_line = NULL;
   image_filename = NULL;
+}
+bool disp_two_lines::isEmply(void)
+{
+  return (first_line == NULL && second_line == NULL && image_filename == NULL);
 }

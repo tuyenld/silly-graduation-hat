@@ -158,8 +158,11 @@ mosquitto_sub -c -q2 -u piZero -P pihat -v -h 104.248.243.162 -t 'hat'
 mosquitto_pub -u piZero -P pihat -h 104.248.243.162 -t 'hat' -m 'hello'
 
 
-
-mosquitto_pub -h test.mosquitto.org -t "example/temperature" -m 'hello'
+# Durable connection
+# qos is needed for both sub and pub
+# -c : disable clean session/enable persistent client mode
+mosquitto_pub -q 2 -h test.mosquitto.org -t "example/temperature" -m 'hello'
+mosquitto_sub -q 2 -c -i durable_id -h test.mosquitto.org -t "example/temperature"
 
 ```
 

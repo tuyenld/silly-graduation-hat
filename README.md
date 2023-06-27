@@ -1,3 +1,14 @@
+```bash
+tmux new -s hat
+tmux ls
+
+tmux a
+tmux a -t hat
+
+mqtt-python/reset.sh
+```
+
+
 ##  Adafruit RGB Matrix Bonnet for Raspberry Pi 
 
 - [Pinout](https://learn.adafruit.com/adafruit-rgb-matrix-bonnet-for-raspberry-pi/pinouts)
@@ -75,6 +86,8 @@ sudo ./main -f "tuyendl" -s "Open to work" -i LinkedIn_16.jpg
 - https://github.com/hzeller/rpi-rgb-led-matrix/tree/master/examples-api-use
 - https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/include/threaded-canvas-manipulator.h
 - https://github.com/search?q=repo%3Ahzeller%2Frpi-rgb-led-matrix+thread&type=issues&p=10
+- [Value categories (lvalues and rvalues)](https://www.learncpp.com/cpp-tutorial/value-categories-lvalues-and-rvalues/)
+- [Emoji](https://www.reshot.com/free-svg-icons/item/emoji-icon-set-flat-JUGV8M6LFR/) and [emojipedia](https://emojipedia.org/people/)
 
 
 ## Thread

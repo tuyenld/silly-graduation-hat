@@ -26,14 +26,14 @@ $(RGB_LIBRARY): FORCE
 % : %.o $(RGB_LIBRARY)
 	$(CXX) $< -o $@ $(LDFLAGS)
 
-main : main.o mqtt_control.o led_config.o $(RGB_LIBRARY)
+main : main.o mqtt_control.o led_config.o yyjson.o $(RGB_LIBRARY)
 	$(CXX) $^ -o $@ $(LDFLAGS) $(MAGICK_LDFLAGS)
 
 main.o : main.cpp
 	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
 
 led_config.o : led_config.cpp
-	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $<
+	$(CXX) -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c -o $@ $^
 
 mqtt_control.o : mqtt_control.cpp
 	${CXX}  -I$(RGB_INCDIR) $(CXXFLAGS) $(MAGICK_CXXFLAGS) -c $^ -o $@ ${CFLAGS}

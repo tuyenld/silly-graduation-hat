@@ -51,7 +51,7 @@ bool usage(const char *progname);
 class disp_two_lines
 {
     public:
-        disp_two_lines(const char* str);
+        bool convert_to_json(const char* str);
         disp_two_lines(void);
         disp_two_lines& operator=(const disp_two_lines& new_disp);
         ~disp_two_lines();
@@ -59,6 +59,8 @@ class disp_two_lines
         const char* first_line;
         const char* second_line;
         const char *image_filename;
+
+        bool isEmply(void);
 
 };
 
