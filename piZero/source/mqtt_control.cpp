@@ -70,15 +70,14 @@ void mqtt_control::on_message(const struct mosquitto_message *message)
  	*/
 	const int MAX_SIZE = 256;
 	char buf[MAX_SIZE];
-	printf("Receive sth \n");
 	memset(buf, 0, MAX_SIZE*sizeof(char));
+	/* Copy N-1 bytes to ensure always 0 terminated. */
+	memcpy(buf, message->payload, (MAX_SIZE-1)*sizeof(char));
 
 	if(!strcmp(message->topic, "hat")){
-		/* Copy N-1 bytes to ensure always 0 terminated. */
-		memcpy(buf, message->payload, (MAX_SIZE-1)*sizeof(char));
 		printf("[hat] Received %s \n", buf);
 		disp_two_lines new_disp;
-		if (new_disp.convert_to_json((const char*)message->payload))
+		if (new_disp.convert_to_json(buf))
 		{
 			led_config_cur->set_disp(new_disp);
 		}
@@ -89,9 +88,11 @@ void mqtt_control::on_message(const struct mosquitto_message *message)
 	}
 
 	if(!strcmp(message->topic, "ctrl")){
-		/* Copy N-1 bytes to ensure always 0 terminated. */
-		memcpy(buf, message->payload, (MAX_SIZE-1)*sizeof(char));
 		printf("[ctrl] Received %s \n", buf);
+		uint8_t new_brightness = led_config_cur->set_brightness((const char*) buf);
+		printf("New brightness: %u \n", new_brightness);
+		// snprintf(buf, 50, "{\"brightness\":\"%u\"}", new_brightness);
+		// publish(NULL, "ctrl", strlen(buf), buf);
 	}
 }
 

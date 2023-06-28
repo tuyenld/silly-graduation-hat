@@ -8,7 +8,7 @@
     <script type="text/javascript" charset="utf-8">
 
         const CLIENT_ID = String(Math.floor(Math.random() * 10e16))                            // (2)
-        const TOPIC   = "hat";                                                                 // (3)
+        const TOPIC   = "ctrl";                                                                 // (3)
 
         // Web Socket MQTT Client Object.
         const client = new Paho.Client(location.hostname, Number(location.port), CLIENT_ID);   // (4)
@@ -56,8 +56,8 @@
             var data = JSON.parse(message.payloadString);
 
             if (message.destinationName === TOPIC) {
-                $("input[type=range].brightnessLevel").val(data.level);
-                $("#brightnessLevel").html(data.level);
+                $("input[type=range].brightnessLevel").val(data.brightness);
+                $("#brightnessLevel").html(data.brightness);
             }
         }
 
@@ -71,7 +71,7 @@
                 level = $(this).val();
 
                 payload = {
-                    "level": level
+                    "brightness": level
                  };
 
                 // Publish LED brightness.

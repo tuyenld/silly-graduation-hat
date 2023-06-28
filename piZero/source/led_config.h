@@ -73,6 +73,7 @@ class led_config
 
         const char *bdf_font_file = "7x14.bdf";
         void set_disp(disp_two_lines& new_disp);
+        uint8_t set_brightness(const char* str);
 
         float speed;
         // or e.g. "adafruit-hat" or "adafruit-hat-pwm"

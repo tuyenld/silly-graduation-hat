@@ -133,6 +133,7 @@ led_config::led_config(int *argc, char ***argv)
     // Create a new canvas to be used with led_matrix_swap_on_vsync
     offscreen_canvas = canvas->CreateFrameCanvas();
 
+    printf("Brightness: %u \n", canvas->brightness());
 }
 
 
@@ -263,6 +264,26 @@ void led_config::loop_display_one(disp_two_lines& current_disply)
   }
 }
 
+// For example:
+// {"brightness":"58"}
+uint8_t led_config::set_brightness(const char* str)
+{
+  printf("str: [%s] \n", str);
+  yyjson_doc *doc = yyjson_read(str, strlen(str), 0);
+  yyjson_val *root = yyjson_doc_get_root(doc);
+  yyjson_val *ptrBrighness = yyjson_obj_get(root, "brightness");
+
+  if (ptrBrighness != NULL)
+  {
+    uint8_t brightness = (uint8_t)strtoul(yyjson_get_str(ptrBrighness), NULL, 10);
+    printf("Setting new brightness: %u \n", brightness);
+    canvas->SetBrightness (brightness);
+    // offscreen_canvas->SetBrightness (brightness);
+  }
+  yyjson_doc_free(doc);
+  return canvas->brightness();
+}
+
 led_config::~led_config()
 {
   delete canvas;
@@ -295,14 +316,17 @@ bool disp_two_lines::convert_to_json(const char* str)
   yyjson_val *sLine = yyjson_obj_get(root, "second_line");
   // printf("name: %s\n", yyjson_get_str(iPath));
 
-  std::string non_ascii(yyjson_get_str(iPath));
-  stripUnicode(non_ascii);
-  non_ascii = non_ascii + ".jpg";
-  const char* str_non_ascii = non_ascii.c_str();
-  image_filename = (strlen(str_non_ascii)>4) ? strdup(str_non_ascii) : NULL;
+  if (iPath != NULL)
+  {
+    std::string non_ascii(yyjson_get_str(iPath));
+    stripUnicode(non_ascii);
+    non_ascii = non_ascii + ".jpg";
+    const char* str_non_ascii = non_ascii.c_str();
+    image_filename = (strlen(str_non_ascii)>4) ? strdup(str_non_ascii) : NULL;
+  }
 
-  first_line = (strlen(yyjson_get_str(fLine))) ? strdup(yyjson_get_str(fLine)) : NULL;
-  second_line = (strlen(yyjson_get_str(sLine))) ? strdup(yyjson_get_str(sLine)) : NULL;
+  first_line = (fLine != NULL) ? strdup(yyjson_get_str(fLine)) : NULL;
+  second_line = (sLine != NULL) ? strdup(yyjson_get_str(sLine)) : NULL;
 
   // Free the doc
   yyjson_doc_free(doc);
