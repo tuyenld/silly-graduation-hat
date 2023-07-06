@@ -122,11 +122,12 @@ led_config::led_config(int *argc, char ***argv)
     matrix_options.cols = 64;
     matrix_options.show_refresh_rate = true;
     mutex = PTHREAD_MUTEX_INITIALIZER;
-    speed = 1.5f;
+    speed = 2.0f;
 
     ParseOptionsFromFlags(argc, argv);
     x_default_start = (matrix_options.chain_length
                                     * matrix_options.cols) + 5;
+    x_orig = x_default_start;
     canvas = RGBMatrix::CreateFromOptions(matrix_options, runtime_opt);
     if (canvas == NULL)
         printf("Initiation canvas failed\n");
@@ -258,6 +259,7 @@ void led_config::loop_display_one(disp_two_lines& current_disply)
 
       /* time to update a new text */
       if (--x + length < 0) {
+        x = x_orig;
         break;
       }
       usleep(delay_speed_usec);

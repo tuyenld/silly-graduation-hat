@@ -145,3 +145,52 @@ You must use a mutex for passing the thread boundary of course.
 
 In the ThreadedCanvasManipulator you see an example how to pass some data safely with a mutex; in this case it is a running flag, but you'd do something similar
 https://github.com/hzeller/rpi-rgb-led-matrix/blob/master/include/threaded-canvas-manipulator.h
+
+```
+network={
+    ssid="PiHat"
+    psk="ayPf2tYm"
+    scan_ssid=1
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP
+    auth_alg=OPEN
+    priority=2
+}
+```
+
+cat /var/log/syslog | grep wpa_supplicant
+
+```
+# interfaces(5) file used by ifup(8) and ifdown(8)
+
+# Please note that this file is written to be used with dhcpcd
+# For static IP, consult /etc/dhcpcd.conf and 'man dhcpcd.conf'
+
+# Include files from /etc/network/interfaces.d:
+source-directory /etc/network/interfaces.d
+
+auto wlan0
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+iface default inet dhcp
+```
+
+
+```
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="PiHat"
+    psk="ayPf2tYm"
+    scan_ssid=1
+    key_mgmt=WPA-PSK
+    proto=RSN
+    pairwise=CCMP
+    auth_alg=OPEN
+}
+```
+
+
