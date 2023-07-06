@@ -1,3 +1,9 @@
+# See the hat in action
+
+![Thank Mom and Dad](images/Thank-Mom-and-Dad.gif)
+
+# `tmux` configuration
+
 ```bash
 tmux new -s hat
 tmux ls
