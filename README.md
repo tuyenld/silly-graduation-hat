@@ -2,6 +2,10 @@
 
 ![Thank Mom and Dad](images/Thank-Mom-and-Dad.gif)
 
+# System block
+![system block](images/system-block.drawio.svg)
+
+
 # `tmux` configuration
 
 ```bash
