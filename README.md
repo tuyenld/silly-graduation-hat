@@ -1,3 +1,5 @@
+My friend and family are able to display their own messages by filling a [Google Forms](https://forms.gle/S8Wy22Y4KKhefGZC8).
+
 # See the hat in action
 
 ![Thank Mom and Dad](images/Thank-Mom-and-Dad.gif)
@@ -5,18 +7,10 @@
 # System block
 ![system block](images/system-block.drawio.svg)
 
-
-# `tmux` configuration
-
-```bash
-tmux new -s hat
-tmux ls
-
-tmux a
-tmux a -t hat
-
-mqtt-python/reset.sh
-```
+- Google forms: https://forms.gle/S8Wy22Y4KKhefGZC8
+- Google Apps Script: [code.gs](code.gs)
+- VPS configurations: [MQTT broker](MQTTBroker)
+- Raspbery Pi Zero configurations: [Raspberry Pi Zero](piZero)
 
 
 ##  Adafruit RGB Matrix Bonnet for Raspberry Pi 
@@ -41,9 +35,6 @@ These panels require 13 digital pins (6 bit data, 7 bit control) and a good 5V s
 Adafruit sells a board where they choose a different mapping. You can choose with the `--led-gpio-mapping` flag.
 
 If you have a 64x32 display, you need to supply the flags `--led-cols=64 --led-rows=32` for instance.
-
-
-
 
 https://learn.adafruit.com/adafruit-rgb-matrix-bonnet-for-raspberry-pi/driving-matrices
 
@@ -71,9 +62,12 @@ sudo apt-get install libgraphicsmagick++-dev libwebp-dev -y
 ### Compile
 
 ```bash
+cd examples-api-use
 # scrolling-text-example.cc
 make
 ./scrolling-text-example -s 1 -f ../fonts/7x14.bdf "Hello world"
+./scrolling-text-example --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat -s 1 -f ../fonts/7x14.bdf "A cool guy lives here!!"
+sudo ./scrolling-text-example --led-rows=32 --led-cols=64 --led-gpio-mapping=adafruit-hat -s 1 -f ../fonts/10x20.bdf "A cool guy lives here!!"
 
 # image-example.cc
 make image-example
@@ -204,3 +198,23 @@ network={
 ```
 
 
+# Other configuration
+
+## `tmux` configuration
+
+```bash
+# Create a new session
+tmux new -s hat
+# List all active session
+tmux ls
+
+# attach to session
+tmux a
+# attach to 'hat' session
+tmux a -t hat
+```
+
+```
+mqtt-python/reset.sh
+```
+ 
