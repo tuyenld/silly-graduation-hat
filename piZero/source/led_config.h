@@ -80,7 +80,7 @@ class led_config
         rgb_matrix::Color color {rgb_matrix::Color(255, 255, 0)};
         rgb_matrix::Color bg_color {rgb_matrix::Color(0, 0, 0)};
         /* x_origin is set by default just right of the screen */
-        int x_default_start;
+        int x_default_start = 0;
         int x_orig = 0;
         int y_orig = 0;
         int x = 0;
